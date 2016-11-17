@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">s236326_mappe3</string>
+    <string name="meter">Antall meter gått idag: </string>
+    <string name="goal">Antall meter som er målet idag: </string>
+    <string name="overskrift">Her kan du se din gådag</string>
+    <string name="profiln">Navn</string>
+    <string name="profilv">Vekt</string>
+    <string name="profilf">Fødselsdato</string>
+    <string name="profild">Notat for dagen</string>
+    <string name="kg">kg</string>
+    <string name="vekt">Vekt: </string>
+    <string name="tall">70</string>
+    <string name="skritt">Antall skritt gått idag: </string>
+    <string name="hoyde">Høyde</string>
+    <string name="cm">cm</string>
+    <string name="rekord">Det lengste du har gått på en dag: </string>
+    <string name="daglig">Ditt daglige mål: </string>
+    <string name="step_counter">android.hardware.sensor.stepcounter</string>
+    <string name="step_detector">android.hardware.sensor.stepdetector</string>
+</resources>
