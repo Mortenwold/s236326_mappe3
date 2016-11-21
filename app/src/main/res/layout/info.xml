@@ -86,7 +86,8 @@
         android:hint="@string/profild"
         android:textColor="@android:color/black"
         android:textAlignment="center"
-        android:maxLines="5"/>
+        android:maxLines="5"
+        android:id="@+id/notat"/>
     </LinearLayout>
 
     <LinearLayout

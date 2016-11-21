@@ -1,6 +1,9 @@
 package com.example.mmoor_000.s236326_mappe3;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.icu.util.Calendar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = sensorEvent.sensor;
         float[] values = sensorEvent.values;
         int value = -1;
+        calendar = Calendar.getInstance();
 
         if (values.length > 0) {
             value = (int) values[0];
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (calendar.getTimeInMillis() == 1000*60*60*24) {
             value = -1;
         }
+        int mangler = Integer.valueOf(goal.getText().toString())-Integer.valueOf(skritt.getText().toString());
 
         if(Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())*0.25) {
             skritt.setTextColor(Color.RED);
@@ -60,8 +66,74 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Integer.valueOf(skritt.getText().toString()) >= Integer.valueOf(goal.getText().toString())*0.25)  {
             skritt.setTextColor(Color.YELLOW);
         }
-        else
+        else if (Integer.valueOf(skritt.getText().toString()) >= Integer.valueOf(goal.getText().toString())) {
             skritt.setTextColor(Color.GREEN);
+
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.mipmap.run )
+                                .setContentTitle("Skritt oppdatering")
+                                .setContentText("Du greide målet!");
+                Intent resultIntent = new Intent(this, MainActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                stackBuilder.addParentStack(MainActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent =
+                        stackBuilder.getPendingIntent(
+                                0,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+                mBuilder.setContentIntent(resultPendingIntent);
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                mNotificationManager.notify(1, mBuilder.build());
+        }
+
+        if(calendar.getTimeInMillis() == ((1000*24*60*60)-1) &&
+                Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())) {
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.mipmap.run )
+                            .setContentTitle("Skritt oppdatering")
+                            .setContentText("Du har ikke nådd ditt daglige mål\n" + "Du hadde " + mangler + " skritt igjen");
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(MainActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            mNotificationManager.notify(1, mBuilder.build());
+        }
+        if(calendar.getTimeInMillis() == ((1000*24*60*60)*0.75) &&
+                Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())) {
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.mipmap.run )
+                            .setContentTitle("Skritt oppdatering")
+                            .setContentText("Du mangler " + mangler + " for å nå målet!");
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(MainActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            mNotificationManager.notify(1, mBuilder.build());
+        }
 
         if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             skritt.setText(value);
@@ -79,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         db = new Database(this);
         db.getWritableDatabase();
+
 
         skritt = (TextView) findViewById(R.id.skritt);
         meter = (TextView) findViewById(R.id.meter);

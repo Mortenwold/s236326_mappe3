@@ -7,4 +7,9 @@
         app:showAsAction="always"
         android:title=""
         android:icon="@drawable/save"/>
+    <item
+        android:id="@+id/test"
+        app:showAsAction="always"
+        android:title=""
+        android:icon="@drawable/menub1"/>
 </menu>
