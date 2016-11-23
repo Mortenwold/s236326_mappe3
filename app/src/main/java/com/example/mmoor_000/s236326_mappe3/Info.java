@@ -15,8 +15,9 @@ public class Info {
     int Dag;
     int id;
     int daglig;
+    int rekord;
 
-    public Info(String navn, int vekt, int hoyde, int dag, int maned, int aar, int id, int daglig) {
+    public Info(String navn, int vekt, int hoyde, int dag, int maned, int aar, int id, int daglig, int rekord) {
         this.navn = navn;
         this.vekt = vekt;
         this.hoyde = hoyde;
@@ -25,7 +26,12 @@ public class Info {
         Dag = dag;
         this.id = id;
         this.daglig = daglig;
+        this.rekord = rekord;
 
+    }
+
+    public int getRekord() {
+        return rekord;
     }
 
     public int getDaglig() {

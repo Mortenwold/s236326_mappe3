@@ -2,18 +2,25 @@ package com.example.mmoor_000.s236326_mappe3;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,7 +37,11 @@ public class Profil extends AppCompatActivity {
     EditText h;
     EditText notat;
     DatePicker d;
+    TextView notatdata;
+    TextView r;
     Context context;
+
+    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Notater";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +52,13 @@ public class Profil extends AppCompatActivity {
         h = (EditText) findViewById(R.id.hoyde);
         d = (DatePicker) findViewById(R.id.dato);
         notat = (EditText) findViewById(R.id.notat);
+        notatdata = (TextView) findViewById(R.id.notatdata);
+        r = (TextView) findViewById(R.id.rekord);
+
+
+        File mappe = new File(path);
+        mappe.mkdir();
+
         Cursor cur = db.Finn(1);
         if (cur.moveToFirst())
         do {
@@ -48,9 +66,121 @@ public class Profil extends AppCompatActivity {
             v.setText(cur.getString(1));
             h.setText(cur.getString(2));
             d.updateDate(Integer.valueOf(cur.getString(5)), Integer.valueOf(cur.getString(4)) - 1, Integer.valueOf(cur.getString(3)));
+            r.setText(cur.getString(7));
         }while (cur.moveToNext());
         cur.close();
+
+        /*lagre.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                File file = new File(path + "/notat.txt");
+                String [] lagre = String.valueOf(notat.getText()).split(System.getProperty("line.seperator"));
+
+                notat.setText("");
+                Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_LONG).show();
+                Save(file, lagre);
+            }
+        });
+        skrive.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                File file = new File(path + "/notat.txt");
+
+                String [] sn = Load(file);
+                String notat = "";
+
+                for(int i = 0; i < sn.length; i++)
+                {
+                    notat += sn[i] + System.getProperty("line.seperator");
+                }
+
+                notatdata.setText(notat);
+
+            }
+        });*/
     }
+
+    public static void Save(File file, String[] data)
+    {
+        FileOutputStream fos = null;
+        try
+        {
+            fos = new FileOutputStream(file);
+        }
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        try
+        {
+            try
+            {
+                for (int i = 0; i<data.length; i++)
+                {
+                    fos.write(data[i].getBytes());
+                    if (i < data.length-1)
+                    {
+                        fos.write("\n".getBytes());
+                    }
+                }
+            }
+            catch (IOException e) {e.printStackTrace();}
+        }
+        finally
+        {
+            try
+            {
+                fos.close();
+            }
+            catch (IOException e) {e.printStackTrace();}
+        }
+    }
+
+
+    public static String[] Load(File file)
+    {
+        FileInputStream fis = null;
+        try
+        {
+            fis = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader br = new BufferedReader(isr);
+
+        String test;
+        int anzahl=0;
+        try
+        {
+            while ((test=br.readLine()) != null)
+            {
+                anzahl++;
+            }
+        }
+        catch (IOException e) {e.printStackTrace();}
+
+        try
+        {
+            fis.getChannel().position(0);
+        }
+        catch (IOException e) {e.printStackTrace();}
+
+        String[] array = new String[anzahl];
+
+        String line;
+        int i = 0;
+        try
+        {
+            while((line=br.readLine())!=null)
+            {
+                array[i] = line;
+                i++;
+            }
+        }
+        catch (IOException e) {e.printStackTrace();}
+        return array;
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,81 +201,32 @@ public class Profil extends AppCompatActivity {
                 int maned = d.getMonth()+1;
                 int dag = d.getDayOfMonth();
                 db.Oppdater(navn,vekt,hoyde,dag,maned,aar);
-                writeToFile(notat.getText().toString());
                 startActivity(new Intent(Profil.this, MainActivity.class));
                 return true;
             case R.id.test:
-                notat.setText(readFromFile());
+                File file = new File(path + "/notat.txt");
+                String [] lagre = String.valueOf(notat.getText()).split(System.getProperty("line.seperator"));
+
+                notat.setText("");
+
+                Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_LONG).show();
+
+                Save(file, lagre);
+            case R.id.test2:
+                File file2 = new File(path + "/notat.txt");
+
+                String [] sn = Load(file2);
+                String notat = "";
+
+                for(int i = 0; i < sn.length; i++)
+                {
+                    notat += sn[i] + System.getProperty("line.seperator");
+                }
+
+                notatdata.setText(notat);
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void writeToFile(String data) {
-        //File path = context.getFilesDir();
-        //File file = new File(path, "notat.txt");
-        /*try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("notat.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }*/
-        /*FileOutputStream stream = new FileOutputStream(file);
-        try {
-            stream.write("text-to-write".getBytes());
-        } finally {
-            stream.close();
-        }*/
-        File f = new File("test.txt");
-
-        String nameToWrite = fn;
-        OutputStream outStream = null;
-        try {
-            outStream = new FileOutputStream(f);
-            outStream.write(nameToWrite.getBytes());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } finally {
-            if (null != outStream) {
-                try {
-                    outStream.close();
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
-        }
-    }
-
-    private String readFromFile() {
-
-        String ret = "";
-
-        try {
-            InputStream inputStream = context.openFileInput("notat.txt");
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        }
-        catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
 }

@@ -88,6 +88,10 @@
         android:textAlignment="center"
         android:maxLines="5"
         android:id="@+id/notat"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notatdata"/>
     </LinearLayout>
 
     <LinearLayout

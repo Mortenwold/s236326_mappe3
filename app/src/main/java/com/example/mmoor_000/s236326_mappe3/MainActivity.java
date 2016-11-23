@@ -55,6 +55,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             value = (int) values[0];
         }
         if (calendar.getTimeInMillis() == 1000*60*60*24) {
+            Cursor cur = db.Finn(1);
+            String test = "";
+            int j = 0;
+            if (cur.moveToFirst())
+                do {
+                    test = cur.getString(7);
+                    j = Integer.valueOf(test);
+                } while (cur.moveToNext());
+            if (Integer.valueOf(skritt.getText().toString()) > j)
+            cur.close();
             value = -1;
         }
         int mangler = Integer.valueOf(goal.getText().toString())-Integer.valueOf(skritt.getText().toString());
@@ -173,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int i = ((j+1)-2500)*2500;
 
         goal.setText(i+"");
-        //db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500));
+        //db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 5834));
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
