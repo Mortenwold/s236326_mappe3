@@ -78,7 +78,8 @@
         android:layout_width="250dp"
         android:layout_height="100dp"
         android:calendarViewShown="false"
-            android:id="@+id/dato">
+        android:datePickerMode="spinner"
+        android:id="@+id/dato">
     </DatePicker>
     <EditText
         android:layout_width="match_parent"
@@ -92,6 +93,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/notatdata"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/lagre"
+            android:text="lagre"
+            android:onClick="Save"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/lese"
+            android:text="hente fra fil"
+            android:onClick="Load"/>
     </LinearLayout>
 
     <LinearLayout

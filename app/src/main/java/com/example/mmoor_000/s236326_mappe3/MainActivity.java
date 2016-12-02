@@ -12,7 +12,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.icu.util.Calendar;
+import java.util.Calendar;
+import android.os.Environment;
+import android.os.PersistableBundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,12 +26,11 @@ import android.view.MenuItem;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager mSensorManager;
-
     private Sensor mStepCounterSensor;
-
     private Sensor mStepDetectorSensor;
     Database db;
     private TextView meter;
@@ -38,12 +40,47 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Calendar calendar;
     private NumberPicker n;
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        db = new Database(this);
+        db.getWritableDatabase();
+
+        skritt = (TextView) findViewById(R.id.skritt);
+        meter = (TextView) findViewById(R.id.meter);
+        hoyde = (TextView) findViewById(R.id.hoyde);
+        goal = (TextView) findViewById(R.id.goal);
+        n = (NumberPicker) findViewById(R.id.daglig);
+
+        //db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 600, 100));
+
+
+            Cursor cur = db.Finn(1);
+            int k = 1;
+            if (cur.moveToFirst())
+                do {
+                    String test = cur.getString(6);
+                    k = Integer.valueOf(test);
+                } while (cur.moveToNext());
+            cur.close();
+
+            //int i = ((k + 1) - 2500) * 2500;
+            goal.setText(k + "");
+
+
+        skritt.setText(6000+"");
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Sensor sensor = sensorEvent.sensor;
@@ -54,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (values.length > 0) {
             value = (int) values[0];
         }
-        if (calendar.getTimeInMillis() == 1000*60*60*24) {
+        if (calendar.getTimeInMillis() == 1000 * 60 * 60 * 24) {
             Cursor cur = db.Finn(1);
             String test = "";
             int j = 0;
@@ -63,27 +100,61 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     test = cur.getString(7);
                     j = Integer.valueOf(test);
                 } while (cur.moveToNext());
-            if (Integer.valueOf(skritt.getText().toString()) > j)
+            if (Integer.valueOf(skritt.getText().toString()) > j) {
+                db.setRekord(j);
+            }
             cur.close();
             value = -1;
         }
-        int mangler = Integer.valueOf(goal.getText().toString())-Integer.valueOf(skritt.getText().toString());
 
-        if(Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())*0.25) {
+        Cursor hoy = db.Finn(1);
+        int j = 1;
+        if (hoy.moveToFirst())
+            do {
+                String test = hoy.getString(3);
+                j = Integer.valueOf(test);
+            } while (hoy.moveToNext());
+        hoy.close();
+
+        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+            double m = j*0.45*value;
+            skritt.setText("" + value);
+            meter.setText(m+"");
+            Cursor cur = db.Finn(1);
+            String test = "";
+            int a = 0;
+            if (cur.moveToFirst())
+                do {
+                    test = cur.getString(7);
+                    a = Integer.valueOf(test);
+                } while (cur.moveToNext());
+            if (Integer.valueOf(skritt.getText().toString()) > a) {
+                db.setRekord(a);
+            }
+            cur.close();
+        } else if (sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            double m = j*0.45*value;
+            skritt.setText("" + value);
+            meter.setText(m+"");
+        }
+
+        int s = Integer.valueOf(skritt.getText().toString());
+        int g = Integer.valueOf(goal.getText().toString());
+
+        int mangler = g-s;
+
+        if(s < g*0.25) {
             skritt.setTextColor(Color.RED);
         }
-        else if(Integer.valueOf(skritt.getText().toString()) <= Integer.valueOf(goal.getText().toString())*0.75 &&
-                Integer.valueOf(skritt.getText().toString()) >= Integer.valueOf(goal.getText().toString())*0.25)  {
+        else if(s <= g*0.75 && s >= g*0.25)  {
             skritt.setTextColor(Color.YELLOW);
         }
-        else if (Integer.valueOf(skritt.getText().toString()) >= Integer.valueOf(goal.getText().toString())) {
+        else if (s >= g) {
             skritt.setTextColor(Color.GREEN);
 
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.mipmap.run )
-                                .setContentTitle("Skritt oppdatering")
-                                .setContentText("Du greide målet!");
+            NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this).setSmallIcon(R.mipmap.run )
+                                .setContentTitle("Skritt oppdatering").setContentText("Du greide målet!");
                 Intent resultIntent = new Intent(this, MainActivity.class);
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
                 stackBuilder.addParentStack(MainActivity.class);
@@ -94,17 +165,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 PendingIntent.FLAG_UPDATE_CURRENT
                         );
                 mBuilder.setContentIntent(resultPendingIntent);
-                NotificationManager mNotificationManager =
+                NotificationManager nm =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                mNotificationManager.notify(1, mBuilder.build());
+                nm.notify(1, mBuilder.build());
         }
 
-        if(calendar.getTimeInMillis() == ((1000*24*60*60)-1) &&
-                Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())) {
+        if (calendar.getTimeInMillis() == ((1000 * 24 * 60 * 60) - 1) &&
+                s < g) {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.mipmap.run )
+                            .setSmallIcon(R.mipmap.run)
                             .setContentTitle("Skritt oppdatering")
                             .setContentText("Du har ikke nådd ditt daglige mål\n" + "Du hadde " + mangler + " skritt igjen");
             Intent resultIntent = new Intent(this, MainActivity.class);
@@ -122,11 +193,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             mNotificationManager.notify(1, mBuilder.build());
         }
-        if(calendar.getTimeInMillis() == ((1000*24*60*60)*0.75) &&
-                Integer.valueOf(skritt.getText().toString()) < Integer.valueOf(goal.getText().toString())) {
+        if (calendar.getTimeInMillis() == ((1000 * 24 * 60 * 60) * 0.75) &&
+                s < g) {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.mipmap.run )
+                            .setSmallIcon(R.mipmap.run)
                             .setContentTitle("Skritt oppdatering")
                             .setContentText("Du mangler " + mangler + " for å nå målet!");
             Intent resultIntent = new Intent(this, MainActivity.class);
@@ -144,53 +215,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             mNotificationManager.notify(1, mBuilder.build());
         }
-
-        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            skritt.setText(value);
-            meter.setText(Integer.valueOf(hoyde.toString())*0.45*value + "");
-        } else if (sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            // For test only. Only allowed value is 1.0 i.e. for step taken
-            skritt.setText(value);
-            meter.setText(Integer.valueOf(hoyde.toString())*0.45*value + "");
-        }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        db = new Database(this);
-        db.getWritableDatabase();
-
-
-        skritt = (TextView) findViewById(R.id.skritt);
-        meter = (TextView) findViewById(R.id.meter);
-        hoyde = (TextView) findViewById(R.id.hoyde);
-        goal = (TextView) findViewById(R.id.goal);
-
-        n = (NumberPicker) findViewById(R.id.daglig);
-
-        Cursor cur = db.Finn(1);
-        int j = 1;
-        if (cur.moveToFirst())
-            do {
-                String test = cur.getString(6);
-                j = Integer.valueOf(test);
-                Log.d("d", ""+j+test);
-            } while (cur.moveToNext());
-        cur.close();
-
-        int i = ((j+1)-2500)*2500;
-
-        goal.setText(i+"");
-        //db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 5834));
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        //skritt.setText(6000+"");
-
-    }
 
     @Override
     protected void onResume() {
@@ -204,12 +230,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 SensorManager.SENSOR_DELAY_FASTEST);
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         super.onStop();
         mSensorManager.unregisterListener(this, mStepCounterSensor);
         mSensorManager.unregisterListener(this, mStepDetectorSensor);
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

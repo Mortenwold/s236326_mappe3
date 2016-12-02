@@ -26,17 +26,18 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.settings);
 
         np = (NumberPicker) findViewById(R.id.daglig);
-        String[] nums = new String[12];
+        np.setMinValue(1);
+        np.setMaxValue(600);
+        np.setWrapSelectorWheel(false);
+
+        String[] nums = new String[600];
         int teller = 0;
         for(int i=0; i<nums.length; i++) {
-            teller += 2500;
+            teller++;
             nums[i] = Integer.toString(teller);
         }
-
-        np.setMinValue(2500);
-        np.setMaxValue(30000);
-        np.setWrapSelectorWheel(false);
         np.setDisplayedValues(nums);
+
 
         Cursor cur = db.Finn(1);
 
