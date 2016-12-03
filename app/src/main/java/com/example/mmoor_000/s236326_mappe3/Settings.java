@@ -26,14 +26,14 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.settings);
 
         np = (NumberPicker) findViewById(R.id.daglig);
-        np.setMinValue(1);
-        np.setMaxValue(600);
+        np.setMinValue(2500);
+        np.setMaxValue(20000);
         np.setWrapSelectorWheel(false);
 
-        String[] nums = new String[600];
+        String[] nums = new String[7];
         int teller = 0;
         for(int i=0; i<nums.length; i++) {
-            teller++;
+            teller += 2500;
             nums[i] = Integer.toString(teller);
         }
         np.setDisplayedValues(nums);
@@ -53,7 +53,7 @@ public class Settings extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_info,menu);
+        inflater.inflate(R.menu.menu_settings,menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -61,7 +61,7 @@ public class Settings extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.save:
+            case R.id.mal:
                 db.Daglig(np.getValue());
                 startActivity(new Intent(Settings.this, MainActivity.class));
                 return true;

@@ -35,6 +35,9 @@
         <activity android:name=".Settings"
             android:parentActivityName=".MainActivity">
         </activity>
+        <activity android:name=".Notat"
+            android:parentActivityName=".Profil">
+        </activity>
         <meta-data android:name="com.google.android.maps.v2.mappe3" android:value="AIzaSyDT0X_rkM7_ScJJGinnmQ1pHgItJcxG7Ds"/>
     </application>
 

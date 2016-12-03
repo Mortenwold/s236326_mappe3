@@ -6,15 +6,15 @@
         android:id="@+id/save"
         app:showAsAction="always"
         android:title=""
-        android:icon="@drawable/save"/>
+        android:icon="@drawable/oppdater"/>
     <item
         android:id="@+id/test"
         app:showAsAction="always"
         android:title=""
-        android:icon="@drawable/menub1"/>
+        android:icon="@drawable/save"/>
     <item
         android:id="@+id/test2"
         app:showAsAction="always"
         android:title=""
-        android:icon="@drawable/menub1"/>
+        android:icon="@drawable/load"/>
 </menu>

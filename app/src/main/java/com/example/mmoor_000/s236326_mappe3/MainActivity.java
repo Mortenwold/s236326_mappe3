@@ -7,6 +7,8 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         goal = (TextView) findViewById(R.id.goal);
         n = (NumberPicker) findViewById(R.id.daglig);
 
-        //db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 600, 100));
+        db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 100));
 
 
             Cursor cur = db.Finn(1);
@@ -66,11 +68,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } while (cur.moveToNext());
             cur.close();
 
-            //int i = ((k + 1) - 2500) * 2500;
-            goal.setText(k + "");
+            int i = ((k + 1) - 2500) * 2500;
+            goal.setText(i + "");
 
-
-        skritt.setText(6000+"");
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
@@ -111,15 +111,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int j = 1;
         if (hoy.moveToFirst())
             do {
-                String test = hoy.getString(3);
+                String test = hoy.getString(2);
                 j = Integer.valueOf(test);
             } while (hoy.moveToNext());
         hoy.close();
 
         if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            double m = j*0.45*value;
+            double m = j*0.45*value/100;
+            int me = (int) m;
             skritt.setText("" + value);
-            meter.setText(m+"");
+            meter.setText(me+"");
             Cursor cur = db.Finn(1);
             String test = "";
             int a = 0;
@@ -151,24 +152,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else if (s >= g) {
             skritt.setTextColor(Color.GREEN);
+        }
 
+        if (s==g) {
             NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this).setSmallIcon(R.mipmap.run )
-                                .setContentTitle("Skritt oppdatering").setContentText("Du greide målet!");
-                Intent resultIntent = new Intent(this, MainActivity.class);
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-                stackBuilder.addParentStack(MainActivity.class);
-                stackBuilder.addNextIntent(resultIntent);
-                PendingIntent resultPendingIntent =
-                        stackBuilder.getPendingIntent(
-                                0,
-                                PendingIntent.FLAG_UPDATE_CURRENT
-                        );
-                mBuilder.setContentIntent(resultPendingIntent);
-                NotificationManager nm =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    new NotificationCompat.Builder(this).setSmallIcon(R.mipmap.run )
+                            .setContentTitle("Skritt oppdatering").setContentText("Du greide målet!");
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(MainActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager nm =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                nm.notify(1, mBuilder.build());
+            nm.notify(1, mBuilder.build());
         }
 
         if (calendar.getTimeInMillis() == ((1000 * 24 * 60 * 60) - 1) &&

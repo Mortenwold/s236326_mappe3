@@ -15,6 +15,9 @@
     <string name="cm">cm</string>
     <string name="rekord">Det lengste du har gått på en dag: </string>
     <string name="daglig">Ditt daglige mål: </string>
+    <string name="notat">Her er alle notatene dine:</string>
+    <string name="dato">Dato</string>
+    <string name="note">Notat</string>
     <string name="step_counter">android.hardware.sensor.stepcounter</string>
     <string name="step_detector">android.hardware.sensor.stepdetector</string>
 </resources>

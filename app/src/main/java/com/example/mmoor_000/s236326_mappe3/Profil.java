@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+
+import java.io.File;
 import java.util.Calendar;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,9 +34,7 @@ public class Profil extends AppCompatActivity {
     EditText h;
     EditText notat;
     DatePicker d;
-    TextView notatdata;
     TextView r;
-    Context context;
     Calendar calendar;
 
     String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Notater";
@@ -48,9 +48,9 @@ public class Profil extends AppCompatActivity {
         h = (EditText) findViewById(R.id.hoyde);
         d = (DatePicker) findViewById(R.id.dato);
         notat = (EditText) findViewById(R.id.notat);
-        notatdata = (TextView) findViewById(R.id.notatdata);
         r = (TextView) findViewById(R.id.rekord);
         calendar = Calendar.getInstance();
+        notat.setText("");
 
         Cursor cur = db.Finn(1);
         if (cur.moveToFirst())
@@ -62,45 +62,6 @@ public class Profil extends AppCompatActivity {
             r.setText(cur.getString(7));
         }while (cur.moveToNext());
         cur.close();
-    }
-
-    public void Save(View view)
-    {
-        String note = notat.getText().toString();
-        String dato = calendar.get(Calendar.DAY_OF_MONTH) + "." + ((calendar.get(Calendar.MONTH))+1) + "." + calendar.get(Calendar.YEAR);
-        String fil = "notat";
-        String utskrift = dato + "  " + note;
-        try {
-            FileOutputStream fileOutputStream = openFileOutput(fil, MODE_PRIVATE);
-            fileOutputStream.write(utskrift.getBytes());
-            fileOutputStream.close();
-            Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_LONG).show();;
-            notat.setText("");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void Load(View view)
-    {
-        try {
-            String melding = "";
-            FileInputStream fileInputStream = openFileInput("notat");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuffer stringBuffer = new StringBuffer();
-            while ((melding=bufferedReader.readLine()) != null) {
-                stringBuffer.append(melding + "\n");
-            }
-            notatdata.setText(stringBuffer.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override
@@ -125,27 +86,18 @@ public class Profil extends AppCompatActivity {
                 startActivity(new Intent(Profil.this, MainActivity.class));
                 return true;
             case R.id.test:
-                /*File file = new File(path + "/notat.txt");
-                String [] lagre = String.valueOf(notat.getText()).split(System.getProperty("line.seperator"));
-
-                notat.setText("");
-
-                Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_LONG).show();
-
-                Save(file, lagre);*/
+                String dato = calendar.get(Calendar.DAY_OF_MONTH) + "." + ((calendar.get(Calendar.MONTH))+1) + "." + calendar.get(Calendar.YEAR);
+                    if (Fil.saveToFile(dato + ":" + "\t\t\t" + notat.getText().toString())) {
+                        Toast.makeText(Profil.this, "Notat er lagret!", Toast.LENGTH_SHORT).show();
+                        notat.setText("");
+                    } else {
+                        Toast.makeText(Profil.this, "Greide ikke skrive til fil!", Toast.LENGTH_SHORT).show();
+                    }
+                return true;
 
             case R.id.test2:
-                /*File file2 = new File(path + "/notat.txt");
-
-                String [] sn = Load(file2);
-                String notat = "";
-
-                for(int i = 0; i < sn.length; i++)
-                {
-                    notat += sn[i] + System.getProperty("line.seperator");
-                }
-
-                notatdata.setText(notat);*/
+                startActivity(new Intent(Profil.this, Notat.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
