@@ -37,8 +37,6 @@ public class Profil extends AppCompatActivity {
     TextView r;
     Calendar calendar;
 
-    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Notater";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

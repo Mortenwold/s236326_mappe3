@@ -12,13 +12,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 /**
  * Created by mmoor_000 on 02-Dec-16.
  */
 
 public class Fil {
     final static String fileName = "data.txt";
-    final static String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+    final static String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS + "/" + "Android").getAbsolutePath() + "/";
     //final static String TAG = Fil.class.getName();
 
     public static  String ReadFile( Context context){

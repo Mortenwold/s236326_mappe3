@@ -38,6 +38,15 @@
         <activity android:name=".Notat"
             android:parentActivityName=".Profil">
         </activity>
+        <receiver android:name=".Widget">
+            <intent-filter>
+                <action
+                    android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_skritt"/>
+        </receiver>
         <meta-data android:name="com.google.android.maps.v2.mappe3" android:value="AIzaSyDT0X_rkM7_ScJJGinnmQ1pHgItJcxG7Ds"/>
     </application>
 

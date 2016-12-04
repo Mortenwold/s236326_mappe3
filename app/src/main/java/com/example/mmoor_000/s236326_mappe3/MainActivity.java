@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         goal = (TextView) findViewById(R.id.goal);
         n = (NumberPicker) findViewById(R.id.daglig);
 
-        db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 100));
+        db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 100, 0));
 
 
             Cursor cur = db.Finn(1);
@@ -88,9 +88,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int value = -1;
         calendar = Calendar.getInstance();
 
+
         if (values.length > 0) {
             value = (int) values[0];
         }
+        db.setSkritt(value);
         if (calendar.getTimeInMillis() == 1000 * 60 * 60 * 24) {
             Cursor cur = db.Finn(1);
             String test = "";
@@ -129,14 +131,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     test = cur.getString(7);
                     a = Integer.valueOf(test);
                 } while (cur.moveToNext());
+            cur.close();
+            if (Integer.valueOf(skritt.getText().toString()) > a) {
+                db.setRekord(Integer.valueOf(skritt.getText().toString()));
+            }
+        } else if (sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            double m = j*0.45*value/100;
+            int me = (int) m;
+            skritt.setText("" + value);
+            meter.setText(me+"");
+            Cursor cur = db.Finn(1);
+            String test = "";
+            int a = 0;
+            if (cur.moveToFirst())
+                do {
+                    test = cur.getString(7);
+                    a = Integer.valueOf(test);
+                } while (cur.moveToNext());
             if (Integer.valueOf(skritt.getText().toString()) > a) {
                 db.setRekord(a);
             }
             cur.close();
-        } else if (sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            double m = j*0.45*value;
-            skritt.setText("" + value);
-            meter.setText(m+"");
         }
 
         int s = Integer.valueOf(skritt.getText().toString());

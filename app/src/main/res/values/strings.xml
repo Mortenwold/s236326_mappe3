@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">s236326_mappe3</string>
     <string name="meter">Antall meter gått idag: </string>
-    <string name="goal">Antall meter som er målet idag: </string>
+    <string name="goal">Antall skritt som er målet idag: </string>
     <string name="overskrift">Her kan du se din gådag</string>
     <string name="profiln">Navn</string>
     <string name="profilv">Vekt</string>
@@ -18,6 +18,9 @@
     <string name="notat">Her er alle notatene dine:</string>
     <string name="dato">Dato</string>
     <string name="note">Notat</string>
+    <string name="profil">Litt info om deg selv:</string>
+    <string name="wskritt">Skritt:</string>
+    <string name="wmal">Mål:</string>
     <string name="step_counter">android.hardware.sensor.stepcounter</string>
     <string name="step_detector">android.hardware.sensor.stepdetector</string>
 </resources>

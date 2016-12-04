@@ -19,6 +19,7 @@ public class Database extends SQLiteOpenHelper {
     private static String ID = "ID";
     private static String DAGLIG = "Daglig";
     private static String REKORD = "Rekord";
+    private static String SKRITT = "Skritt";
     private static int DATABASE_VERSION = 1;
     private static String DATABASE_NAME = "Shealth";
 
@@ -40,7 +41,8 @@ public class Database extends SQLiteOpenHelper {
                 + AAR + " TEXT,"
                 + ID + " INTEGER PRIMARY KEY,"
                 + DAGLIG + " INTEGER,"
-                + REKORD + " INTEGER"
+                + REKORD + " INTEGER,"
+                + SKRITT + " INREGER"
                 + ")";
         Log.d("database", "lagd");
         db.execSQL(LAG_TABELL);
@@ -64,6 +66,7 @@ public class Database extends SQLiteOpenHelper {
         values.put(ID, info.getId());
         values.put(DAGLIG, info.getDaglig());
         values.put(REKORD, info.getRekord());
+        values.put(SKRITT, info.getSkritt());
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
@@ -84,7 +87,7 @@ public class Database extends SQLiteOpenHelper {
     }
     Cursor Finn(int i) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String[] person = {NAVN,VEKT,HOYDE,DAG,MANED,AAR,DAGLIG,REKORD};
+        String[] person = {NAVN,VEKT,HOYDE,DAG,MANED,AAR,DAGLIG,REKORD,SKRITT};
         cur = db.query(TABLE_NAME,person,ID + " == " + i,null,null,null,null);
         return cur;
     }
@@ -99,6 +102,13 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(REKORD, i);
+        int update = db.update(TABLE_NAME,cv,ID + "='" + 1 + "'",null);
+        return update;
+    }
+    int setSkritt(int i) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(SKRITT, i);
         int update = db.update(TABLE_NAME,cv,ID + "='" + 1 + "'",null);
         return update;
     }

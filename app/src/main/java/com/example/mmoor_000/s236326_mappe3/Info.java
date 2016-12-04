@@ -16,8 +16,9 @@ public class Info {
     int id;
     int daglig;
     int rekord;
+    int skritt;
 
-    public Info(String navn, int vekt, int hoyde, int dag, int maned, int aar, int id, int daglig, int rekord) {
+    public Info(String navn, int vekt, int hoyde, int dag, int maned, int aar, int id, int daglig, int rekord, int skritt) {
         this.navn = navn;
         this.vekt = vekt;
         this.hoyde = hoyde;
@@ -27,7 +28,12 @@ public class Info {
         this.id = id;
         this.daglig = daglig;
         this.rekord = rekord;
+        this.skritt = skritt;
 
+    }
+
+    public int getSkritt() {
+        return skritt;
     }
 
     public int getRekord() {
