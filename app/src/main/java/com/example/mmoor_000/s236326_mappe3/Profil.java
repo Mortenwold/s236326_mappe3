@@ -1,30 +1,17 @@
 package com.example.mmoor_000.s236326_mappe3;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-
-import java.io.File;
 import java.util.Calendar;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class Profil extends AppCompatActivity {
 
@@ -49,16 +36,21 @@ public class Profil extends AppCompatActivity {
         r = (TextView) findViewById(R.id.rekord);
         calendar = Calendar.getInstance();
         notat.setText("");
+        d.setMaxDate(calendar.getTimeInMillis());
+
 
         Cursor cur = db.Finn(1);
-        if (cur.moveToFirst())
-        do {
-            n.setText(cur.getString(0));
-            v.setText(cur.getString(1));
-            h.setText(cur.getString(2));
-            d.updateDate(Integer.valueOf(cur.getString(5)), Integer.valueOf(cur.getString(4)) - 1, Integer.valueOf(cur.getString(3)));
-            r.setText(cur.getString(7));
-        }while (cur.moveToNext());
+        if (cur.moveToFirst()) {
+            do {
+                n.setText(cur.getString(0));
+                v.setText(cur.getString(1));
+                h.setText(cur.getString(2));
+                d.updateDate(Integer.valueOf(cur.getString(5)), Integer.valueOf(cur.getString(4)) - 1, Integer.valueOf(cur.getString(3)));
+                r.setText(cur.getString(7));
+            } while (cur.moveToNext());
+        }
+        else
+            db.leggTil(new Info("",0,0,1,1,1970,1,2500,1,1));
         cur.close();
     }
 
@@ -72,16 +64,31 @@ public class Profil extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        String navn;
+        int vekt;
+        int hoyde;
+        int aar;
+        int maned;
+        int dag;
         switch (id) {
             case R.id.save:
-                String navn = n.getText().toString();
-                int vekt = Integer.valueOf(v.getText().toString());
-                int hoyde = Integer.valueOf(h.getText().toString());
-                int aar = d.getYear();
-                int maned = d.getMonth()+1;
-                int dag = d.getDayOfMonth();
-                db.Oppdater(navn,vekt,hoyde,dag,maned,aar);
-                startActivity(new Intent(Profil.this, MainActivity.class));
+                try {
+                    navn = n.getText().toString();
+                    vekt = Integer.valueOf(v.getText().toString());
+                    hoyde = Integer.valueOf(h.getText().toString());
+                    aar = d.getYear();
+                    maned = d.getMonth() + 1;
+                    dag = d.getDayOfMonth();
+                    if (n.getText().toString() == "" && h.getText().toString() == "" && v.getText().toString() == "")
+                        Toast.makeText(Profil.this, "Skriv noe i alle feltene!", Toast.LENGTH_LONG).show();
+                    else {
+                        db.Oppdater(navn, vekt, hoyde, dag, maned, aar);
+                        startActivity(new Intent(Profil.this, MainActivity.class));
+                    }
+                }
+                catch (NumberFormatException nfe) {
+                    Toast.makeText(Profil.this, "Kan ikke skrive vekt eller høyde med tekst!", Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.test:
                 String dato = calendar.get(Calendar.DAY_OF_MONTH) + "." + ((calendar.get(Calendar.MONTH))+1) + "." + calendar.get(Calendar.YEAR);

@@ -21,31 +21,28 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 public class Fil {
     final static String fileName = "data.txt";
     final static String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS + "/" + "Android").getAbsolutePath() + "/";
-    //final static String TAG = Fil.class.getName();
 
-    public static  String ReadFile( Context context){
+    public static  String ReadFile(Context context){
         String line = null;
 
         try {
-            FileInputStream fileInputStream = new FileInputStream (new File(path + fileName));
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuilder stringBuilder = new StringBuilder();
-            while ( (line = bufferedReader.readLine()) != null )
+            FileInputStream fis = new FileInputStream (new File(path + fileName));
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            while ( (line = br.readLine()) != null )
             {
-                stringBuilder.append(line + System.getProperty("line.separator"));
+                sb.append(line + System.getProperty("line.separator"));
             }
-            fileInputStream.close();
-            line = stringBuilder.toString();
+            fis.close();
+            line = sb.toString();
 
-            bufferedReader.close();
+            br.close();
         }
         catch(FileNotFoundException ex) {
-            //Log.d(TAG, ex.getMessage());
             ex.printStackTrace();
         }
         catch(IOException ex) {
-            //Log.d(TAG, ex.getMessage());
             ex.printStackTrace();
         }
         return line;
@@ -54,19 +51,17 @@ public class Fil {
     public static boolean saveToFile( String data){
         try {
             new File(path  ).mkdir();
-            File file = new File(path+ fileName);
-            if (!file.exists()) {
-                file.createNewFile();
+            File fil = new File(path + fileName);
+            if (!fil.exists()) {
+                fil.createNewFile();
             }
-            FileOutputStream fileOutputStream = new FileOutputStream(file,true);
-            fileOutputStream.write((data + System.getProperty("line.separator")).getBytes());
+            FileOutputStream fos = new FileOutputStream(fil,true);
+            fos.write((data + System.getProperty("line.separator")).getBytes());
 
             return true;
         }  catch(FileNotFoundException ex) {
-            //Log.d(TAG, ex.getMessage());
             ex.printStackTrace();
         }  catch(IOException ex) {
-            //Log.d(TAG, ex.getMessage());
             ex.printStackTrace();
         }
         return  false;

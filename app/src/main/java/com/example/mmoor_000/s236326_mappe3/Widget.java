@@ -21,12 +21,12 @@ public class Widget extends AppWidgetProvider {
 
     Database db;
 
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(Context context, AppWidgetManager awm, int[] id) {
         db = new Database(context);
         db.getWritableDatabase();
         Cursor cur = db.Finn(1);
-        String skritt = "";
-        String mal = "";
+        String skritt;
+        String mal;
         int a = 0;
         int b = 0;
         if (cur.moveToFirst())
@@ -37,22 +37,22 @@ public class Widget extends AppWidgetProvider {
                 b = Integer.valueOf(mal);
             } while (cur.moveToNext());
         cur.close();
-        RemoteViews updateViews = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.widget_layout);
-        updateViews.setTextViewText(R.id.wskritt, a+"");
-        Intent clickIntent = new Intent(context,Widget.class);
-        clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,appWidgetIds);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,0,clickIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        updateViews.setOnClickPendingIntent(R.id.refresh,pendingIntent);
-        appWidgetManager.updateAppWidget(appWidgetIds,updateViews);
-        int i = ((b + 1) - 2500) * 2500;
-        updateViews.setTextViewText(R.id.dm, i+"");
-        Intent clickIntent2 = new Intent(context,Widget.class);
-        clickIntent2.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        clickIntent2.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,appWidgetIds);
-        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(context,0,clickIntent2,PendingIntent.FLAG_UPDATE_CURRENT);
-        updateViews.setOnClickPendingIntent(R.id.refresh,pendingIntent2);
-        appWidgetManager.updateAppWidget(appWidgetIds,updateViews);
+        RemoteViews oppdater = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.widget_layout);
+        oppdater.setTextViewText(R.id.wskritt, a+"");
+        Intent klikk = new Intent(context,Widget.class);
+        klikk.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        klikk.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,id);
+        PendingIntent pending = PendingIntent.getBroadcast(context,0,klikk,PendingIntent.FLAG_UPDATE_CURRENT);
+        oppdater.setOnClickPendingIntent(R.id.refresh,pending);
+        awm.updateAppWidget(id,oppdater);
+        //int i = ((b + 1) - 2500) * 2500;
+        oppdater.setTextViewText(R.id.dm, b+"");
+        Intent klikk2 = new Intent(context,Widget.class);
+        klikk2.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        klikk2.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,id);
+        PendingIntent pending2 = PendingIntent.getBroadcast(context,0,klikk2,PendingIntent.FLAG_UPDATE_CURRENT);
+        oppdater.setOnClickPendingIntent(R.id.refresh,pending2);
+        awm.updateAppWidget(id,oppdater);
 
     }
 }

@@ -1,27 +1,20 @@
 package com.example.mmoor_000.s236326_mappe3;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import java.util.Calendar;
-import android.os.Environment;
-import android.os.PersistableBundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,16 +24,14 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private SensorManager mSensorManager;
-    private Sensor mStepCounterSensor;
-    private Sensor mStepDetectorSensor;
+    private SensorManager sm;
+    private Sensor cs;
+    private Sensor ds;
     Database db;
     private TextView meter;
     private TextView skritt;
-    private TextView hoyde;
     private TextView goal;
     Calendar calendar;
-    private NumberPicker n;
 
 
     @Override
@@ -52,28 +43,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         skritt = (TextView) findViewById(R.id.skritt);
         meter = (TextView) findViewById(R.id.meter);
-        hoyde = (TextView) findViewById(R.id.hoyde);
         goal = (TextView) findViewById(R.id.goal);
-        n = (NumberPicker) findViewById(R.id.daglig);
-
-        db.leggTil(new Info("Morten", 95,184,15,06,1994, 1, 2500, 100, 0));
 
 
             Cursor cur = db.Finn(1);
-            int k = 1;
-            if (cur.moveToFirst())
+            int k;
+            if (cur.moveToFirst()) {
                 do {
                     String test = cur.getString(6);
                     k = Integer.valueOf(test);
+                    //int i = ((k + 1) - 2500) * 2500;
+                    goal.setText(k + "");
                 } while (cur.moveToNext());
+            }
+            else
+                goal.setText("2500");
             cur.close();
 
-            int i = ((k + 1) - 2500) * 2500;
-            goal.setText(i + "");
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        cs = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        ds = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
     }
 
     @Override
@@ -93,7 +82,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             value = (int) values[0];
         }
         db.setSkritt(value);
+
         if (calendar.getTimeInMillis() == 1000 * 60 * 60 * 24) {
+
+            db.setSkritt(value);
             Cursor cur = db.Finn(1);
             String test = "";
             int j = 0;
@@ -153,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             cur.close();
         }
-
         int s = Integer.valueOf(skritt.getText().toString());
         int g = Integer.valueOf(goal.getText().toString());
 
@@ -163,75 +154,75 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             skritt.setTextColor(Color.RED);
         }
         else if(s <= g*0.75 && s >= g*0.25)  {
-            skritt.setTextColor(Color.YELLOW);
+            skritt.setTextColor(Color.parseColor("#ffbf00"));
         }
         else if (s >= g) {
-            skritt.setTextColor(Color.GREEN);
+            skritt.setTextColor(Color.parseColor("#00e600"));
         }
 
         if (s==g) {
-            NotificationCompat.Builder mBuilder =
+            NotificationCompat.Builder not =
                     new NotificationCompat.Builder(this).setSmallIcon(R.mipmap.run )
                             .setContentTitle("Skritt oppdatering").setContentText("Du greide målet!");
-            Intent resultIntent = new Intent(this, MainActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(MainActivity.class);
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
+            Intent resultat = new Intent(this, MainActivity.class);
+            TaskStackBuilder sb = TaskStackBuilder.create(this);
+            sb.addParentStack(MainActivity.class);
+            sb.addNextIntent(resultat);
+            PendingIntent pending =
+                    sb.getPendingIntent(
                             0,
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
-            mBuilder.setContentIntent(resultPendingIntent);
+            not.setContentIntent(pending);
             NotificationManager nm =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            nm.notify(1, mBuilder.build());
+            nm.notify(1, not.build());
         }
 
         if (calendar.getTimeInMillis() == ((1000 * 24 * 60 * 60) - 1) &&
                 s < g) {
-            NotificationCompat.Builder mBuilder =
+            NotificationCompat.Builder not =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.mipmap.run)
                             .setContentTitle("Skritt oppdatering")
                             .setContentText("Du har ikke nådd ditt daglige mål\n" + "Du hadde " + mangler + " skritt igjen");
-            Intent resultIntent = new Intent(this, MainActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(MainActivity.class);
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
+            Intent resultat = new Intent(this, MainActivity.class);
+            TaskStackBuilder sb = TaskStackBuilder.create(this);
+            sb.addParentStack(MainActivity.class);
+            sb.addNextIntent(resultat);
+            PendingIntent pending =
+                    sb.getPendingIntent(
                             0,
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
-            mBuilder.setContentIntent(resultPendingIntent);
-            NotificationManager mNotificationManager =
+            not.setContentIntent(pending);
+            NotificationManager nm =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            mNotificationManager.notify(1, mBuilder.build());
+            nm.notify(1, not.build());
         }
         if (calendar.getTimeInMillis() == ((1000 * 24 * 60 * 60) * 0.75) &&
                 s < g) {
-            NotificationCompat.Builder mBuilder =
+            NotificationCompat.Builder not =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.mipmap.run)
                             .setContentTitle("Skritt oppdatering")
                             .setContentText("Du mangler " + mangler + " for å nå målet!");
-            Intent resultIntent = new Intent(this, MainActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(MainActivity.class);
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
+            Intent resultat = new Intent(this, MainActivity.class);
+            TaskStackBuilder sb = TaskStackBuilder.create(this);
+            sb.addParentStack(MainActivity.class);
+            sb.addNextIntent(resultat);
+            PendingIntent pending =
+                    sb.getPendingIntent(
                             0,
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
-            mBuilder.setContentIntent(resultPendingIntent);
+            not.setContentIntent(pending);
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            mNotificationManager.notify(1, mBuilder.build());
+            mNotificationManager.notify(1, not.build());
         }
     }
 
@@ -240,20 +231,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-        mSensorManager.registerListener(this, mStepCounterSensor,
+        sm.registerListener(this, cs,
 
                 SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(this, mStepDetectorSensor,
+        sm.registerListener(this, ds,
 
                 SensorManager.SENSOR_DELAY_FASTEST);
     }
-
-    /*@Override
-    protected void onStop() {
-        super.onStop();
-        mSensorManager.unregisterListener(this, mStepCounterSensor);
-        mSensorManager.unregisterListener(this, mStepDetectorSensor);
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
